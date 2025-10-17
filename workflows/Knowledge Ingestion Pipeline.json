@@ -1,0 +1,547 @@
+{
+  "name": "Knowledge Ingestion Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "Você é um assistente de IA que responde com base em uma base de conhecimento armazenada no Supabase Vector Store. \nSempre que o usuário fizer uma pergunta, você DEVE primeiro consultar a ferramenta Supabase Vector Store \npara recuperar os documentos mais relevantes, e somente depois elaborar a resposta com base nesses resultados.\n\nInstruções importantes:\n- SEMPRE consulte o Supabase Vector Store antes de responder.\n- Use as informações retornadas pelos documentos (campo “content”) para gerar a resposta.\n- Se os documentos não trouxerem nada relevante, explique que não há informações específicas na base.\n- NÃO responda com base em conhecimento geral, a menos que o usuário autorize (“pode usar conhecimento geral”).\n\nSe a consulta não retornar resultados do Supabase Vector Store, tente reformular a busca (ex: sem acentos ou com sinônimos).\nSempre tente usar o termo principal da pergunta (ex: 'API', 'Supabase', 'n8n') para nova tentativa.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "ea6a39e2-3317-4f74-b483-0c24af234535",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        208
+      ],
+      "id": "f28138ab-d4b4-4226-8c0b-64476afdea53",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "dwQotZ4HHy6cLRWX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Ferramenta para buscar informações técnicas.\nSempre que o usuário fizer uma pergunta técnica, consulte esta ferramenta antes de responder.",
+        "tableName": {
+          "__rl": true,
+          "value": "knowledge_store",
+          "mode": "list",
+          "cachedResultName": "knowledge_store"
+        },
+        "topK": 8,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1312,
+        208
+      ],
+      "id": "9898e2c5-4fc9-4dc2-874e-4c49b319ba09",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "DRvVPmcYr9c3sQkU",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "public": true,
+        "options": {
+          "allowFileUploads": true,
+          "inputPlaceholder": "Type your question..",
+          "subtitle": "Start a chat. We're here to help you 24/7.",
+          "title": "Hi there! 👋"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        752,
+        0
+      ],
+      "id": "69684593-8c25-4e9a-a60a-24b10fd8ac95",
+      "name": "When chat message received",
+      "webhookId": "81fc00fd-72cf-48a7-bf13-2b5ce7f8f995"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1136,
+        208
+      ],
+      "id": "b68564cd-275e-4297-9509-58b532826bf7",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1312,
+        368
+      ],
+      "id": "e098c03c-32d8-4e84-a790-eeaeee2c22b3",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "dwQotZ4HHy6cLRWX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "",
+          "mode": "id"
+        },
+        "event": "fileUpdated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        80
+      ],
+      "id": "b4699190-8a6b-4e5f-a5ef-bb32df3c791e",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MKkXAY02IJCK1raH",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1904,
+        80
+      ],
+      "id": "81506f9f-f0fa-4201-b760-817b9a2261c3",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MKkXAY02IJCK1raH",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        2112,
+        80
+      ],
+      "id": "236a69cf-a437-4082-a9a0-4ca38dde2692",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        2464,
+        288
+      ],
+      "id": "9c034c18-1dde-41df-9d33-7d98fd86f2b4",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2288,
+        288
+      ],
+      "id": "7cfccb6a-2b88-4afd-bb6b-42029d8eef72",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "dwQotZ4HHy6cLRWX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "knowledge_store",
+          "mode": "list",
+          "cachedResultName": "knowledge_store"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        2288,
+        80
+      ],
+      "id": "340fdfa7-69ad-47f0-84df-d43304936859",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "DRvVPmcYr9c3sQkU",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "RAG Agent",
+        "height": 592,
+        "width": 928,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "16d816dd-232c-4b03-b01b-981e21e0a39e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Knowledge Ingestion ",
+        "height": 592,
+        "width": 1008
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1616,
+        -48
+      ],
+      "typeVersion": 1,
+      "id": "972cd81e-12b8-4598-872a-3f0da700b3ba",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {
+    "Google Drive Trigger": [
+      {
+        "json": {
+          "exportLinks": {
+            "application/x-vnd.oasis.opendocument.spreadsheet": "https://docs.google.com/spreadsheets/export?id=1s2UOoUvJdkI1yXWbhEeXGGyfQPA4fWTKeloKTxmALPc&exportFormat=ods",
+            "text/tab-separated-values": "https://docs.google.com/spreadsheets/export?id=1s2UOoUvJdkI1yXWbhEeXGGyfQPA4fWTKeloKTxmALPc&exportFormat=tsv",
+            "application/pdf": "https://docs.google.com/spreadsheets/export?id=1s2UOoUvJdkI1yXWbhEeXGGyfQPA4fWTKeloKTxmALPc&exportFormat=pdf",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "https://docs.google.com/spreadsheets/export?id=1s2UOoUvJdkI1yXWbhEeXGGyfQPA4fWTKeloKTxmALPc&exportFormat=xlsx",
+            "text/csv": "https://docs.google.com/spreadsheets/export?id=1s2UOoUvJdkI1yXWbhEeXGGyfQPA4fWTKeloKTxmALPc&exportFormat=csv",
+            "application/zip": "https://docs.google.com/spreadsheets/export?id=1s2UOoUvJdkI1yXWbhEeXGGyfQPA4fWTKeloKTxmALPc&exportFormat=zip",
+            "application/vnd.oasis.opendocument.spreadsheet": "https://docs.google.com/spreadsheets/export?id=1s2UOoUvJdkI1yXWbhEeXGGyfQPA4fWTKeloKTxmALPc&exportFormat=ods"
+          },
+          "parents": [
+            "122vpd6UvsWiDffWc7kjckfNiZAkCptJy"
+          ],
+          "lastModifyingUser": {
+            "displayName": "",
+            "kind": "drive#user",
+            "me": true,
+            "permissionId": "14532117796990631823",
+            "emailAddress": "",
+            "photoLink": ""
+          },
+          "owners": [
+            {
+              "displayName": "",
+              "kind": "drive#user",
+              "me": true,
+              "permissionId": "",
+              "emailAddress": "",
+              "photoLink": ""
+            }
+          ],
+          "permissions": [
+            {
+              "kind": "drive#permission",
+              "id": "14532117796990631823",
+              "type": "user",
+              "emailAddress": "",
+              "role": "owner",
+              "displayName": "",
+              "photoLink": "https://lh3.googleusercontent.com/a/ACg8ocJ4KRtjeaAkFRU2zepI9f1ScndBSoCInMWmA5OvGSw-d9fwNg=s64",
+              "deleted": false,
+              "pendingOwner": false
+            }
+          ],
+          "spaces": [
+            "drive"
+          ],
+          "capabilities": {
+            "canAcceptOwnership": false,
+            "canAddChildren": false,
+            "canAddMyDriveParent": false,
+            "canChangeCopyRequiresWriterPermission": true,
+            "canChangeItemDownloadRestriction": true,
+            "canChangeSecurityUpdateEnabled": false,
+            "canChangeViewersCanCopyContent": true,
+            "canComment": true,
+            "canCopy": true,
+            "canDelete": true,
+            "canDisableInheritedPermissions": false,
+            "canDownload": true,
+            "canEdit": true,
+            "canEnableInheritedPermissions": true,
+            "canListChildren": false,
+            "canModifyContent": true,
+            "canModifyContentRestriction": true,
+            "canModifyEditorContentRestriction": true,
+            "canModifyOwnerContentRestriction": true,
+            "canModifyLabels": false,
+            "canMoveChildrenWithinDrive": false,
+            "canMoveItemIntoTeamDrive": true,
+            "canMoveItemOutOfDrive": true,
+            "canMoveItemWithinDrive": true,
+            "canReadLabels": false,
+            "canReadRevisions": true,
+            "canRemoveChildren": false,
+            "canRemoveContentRestriction": false,
+            "canRemoveMyDriveParent": true,
+            "canRename": true,
+            "canShare": true,
+            "canTrash": true,
+            "canUntrash": true
+          },
+          "permissionIds": [
+            "14532117796990631823"
+          ],
+          "linkShareMetadata": {
+            "securityUpdateEligible": false,
+            "securityUpdateEnabled": true
+          },
+          "downloadRestrictions": {
+            "itemDownloadRestriction": {
+              "restrictedForReaders": false,
+              "restrictedForWriters": false
+            },
+            "effectiveDownloadRestrictionWithContext": {
+              "restrictedForReaders": false,
+              "restrictedForWriters": false
+            }
+          },
+          "kind": "drive#file",
+          "id": "1s2UOoUvJdkI1yXWbhEeXGGyfQPA4fWTKeloKTxmALPc",
+          "name": "embedding rag.xlxs",
+          "mimeType": "application/vnd.google-apps.spreadsheet",
+          "starred": false,
+          "trashed": false,
+          "explicitlyTrashed": false,
+          "version": "20",
+          "webViewLink": "https://docs.google.com/spreadsheets/d/1s2UOoUvJdkI1yXWbhEeXGGyfQPA4fWTKeloKTxmALPc/edit?usp=drivesdk",
+          "iconLink": "https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.spreadsheet",
+          "hasThumbnail": true,
+          "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBNZBGSRaHbbOPhrWCsFoxuB4uynL3CFuubEz8U18sR0lEtxjEodXoy3Zk2m5tTHt-8vml55mDbxQsWbVTLleY9y2wwwr-er1ZxXg2pBxWzJtyhq0hbB5JZHfK1nfg=s220",
+          "thumbnailVersion": "5",
+          "viewedByMe": true,
+          "viewedByMeTime": "2025-10-17T14:37:35.891Z",
+          "createdTime": "2025-10-17T14:33:35.186Z",
+          "modifiedTime": "2025-10-17T14:37:30.216Z",
+          "modifiedByMeTime": "2025-10-17T14:37:30.216Z",
+          "modifiedByMe": true,
+          "shared": false,
+          "ownedByMe": true,
+          "viewersCanCopyContent": true,
+          "copyRequiresWriterPermission": false,
+          "writersCanShare": true,
+          "size": "1546",
+          "quotaBytesUsed": "1546",
+          "isAppAuthorized": false,
+          "inheritedPermissionsDisabled": false
+        }
+      }
+    ]
+  },
+  "connections": {
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "efd9e79b-5a46-43fa-b493-4a7fcf3f237d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "350c61f5015d63d7ff0869376efb89257ee20372666fa604a3dc9e6f15e2a217"
+  },
+  "id": "JMLDPUrQMbTECE7X",
+  "tags": []
+}
