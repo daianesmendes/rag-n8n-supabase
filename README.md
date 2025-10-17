@@ -1,94 +1,53 @@
-\# 🤖 RAG Agent com Supabase e n8n
+# 🤖 RAG Agent com Supabase e n8n
 
-
-
-Projeto que integra um \*\*agente RAG\*\* (Retrieval-Augmented Generation) no \*\*n8n\*\*, usando \*\*Supabase PGVector\*\* como base vetorial e \*\*Google Drive\*\* para ingestão automática de conhecimento.
-
-
+Pipeline completo que implementa um agente RAG (Retrieval-Augmented Generation) no n8n, com integração ao Supabase PGVector para armazenamento vetorial e ingestão automática de novos documentos do Google Drive.
 
 ---
 
+## ⚙️ Estrutura do Projeto
 
+Este projeto contém um único workflow JSON (Knowledge Ingestion Pipeline.json) que reúne dois fluxos principais:
 
-\## ⚙️ Estrutura
+### 🔴 RAG Agent
+Fluxo responsável por responder perguntas dos usuários utilizando contexto armazenado no Supabase.
 
+Principais nós:
+- AI Agent (OpenAI)
+- Supabase Vector Store
+- Simple Memory
+- Embeddings OpenAI
 
+### 🟤 Knowledge Ingestion
+Fluxo responsável por atualizar automaticamente o banco vetorial quando novos arquivos são adicionados no Google Drive.
 
-\### 🔴 RAG Agent
-
-Fluxo que responde perguntas dos usuários com contexto vindo do Supabase.
-
-
-
-\*\*Principais nós:\*\*
-
-\- AI Agent (OpenAI)
-
-\- Supabase Vector Store
-
-\- Simple Memory
-
-\- Embeddings OpenAI
-
-
-
-\### 🟤 Knowledge Ingestion
-
-Fluxo que atualiza o banco vetorial automaticamente quando novos arquivos são adicionados no Google Drive.
-
-
-
-\*\*Principais nós:\*\*
-
-\- Google Drive Trigger  
-
-\- Extract from File (XLSX)  
-
-\- Supabase Vector Store  
-
-\- Embeddings OpenAI  
-
-
+Principais nós:
+- Google Drive Trigger  
+- Extract from File (XLSX)  
+- Supabase Vector Store  
+- Embeddings OpenAI  
 
 ---
 
-
-
-\## 🧠 Tecnologias
-
-\- n8n.io  
-
-\- OpenAI GPT \& Embeddings  
-
-\- Supabase PGVector  
-
-\- Google Drive API  
-
-
+## 🧠 Tecnologias Utilizadas
+- n8n.io  
+- OpenAI GPT & Embeddings  
+- Supabase PGVector  
+- Google Drive API
 
 ---
 
+## 🖼️ Visual do Fluxo
 
-
-\## 🚀 Como usar
-
-1\. Importe os arquivos `.json` na pasta `/workflows` no n8n.  
-
-2\. Configure as credenciais: OpenAI, Supabase e Google Drive.  
-
-3\. Teste enviando mensagens para o agente.
-
-
+<img src="assets/workflow_preview.png" alt="Fluxo completo RAG + Ingestão no n8n" width="900"/>
 
 ---
 
+## 🚀 Como Usar
+1. Importe o arquivo Knowledge Ingestion Pipeline.json no n8n.  
+2. Configure as credenciais: OpenAI, Supabase e Google Drive.  
+3. Execute o fluxo e envie perguntas ao agente para testar as respostas baseadas na base vetorial.
 
+---
 
-\## 👩‍💻 Autoria
-
-Desenvolvido por \*\*Daiane Mendes\*\*  
-
-Estagiária de IA e Automação – \[01 Tecnologia / Obra Prima](https://obraprima.com.br)
-
-
-
+## 👩‍💻 Autoria
+Desenvolvido por Daiane Mendes  
