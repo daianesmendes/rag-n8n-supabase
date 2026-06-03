@@ -1,14 +1,14 @@
-# 🤖 RAG Agent com Supabase e n8n
+# RAG Agent com Supabase e n8n
 
 Pipeline completo que implementa um agente RAG (Retrieval-Augmented Generation) no n8n, com integração ao Supabase PGVector para armazenamento vetorial e ingestão automática de novos documentos do Google Drive.
 
 ---
 
-## ⚙️ Estrutura do Projeto
+## Estrutura do Projeto
 
 Este projeto contém um único workflow JSON (Knowledge Ingestion Pipeline.json) que reúne dois fluxos principais:
 
-### 🔴 RAG Agent
+### RAG Agent
 Fluxo responsável por responder perguntas dos usuários utilizando contexto armazenado no Supabase.
 
 Principais nós:
@@ -17,7 +17,7 @@ Principais nós:
 - Simple Memory
 - Embeddings OpenAI
 
-### 🟤 Knowledge Ingestion
+### Knowledge Ingestion
 Fluxo responsável por atualizar automaticamente o banco vetorial quando novos arquivos são adicionados no Google Drive.
 
 Principais nós:
@@ -28,7 +28,7 @@ Principais nós:
 
 ---
 
-## 🧠 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 - n8n.io  
 - OpenAI GPT & Embeddings  
 - Supabase PGVector  
@@ -36,18 +36,6 @@ Principais nós:
 
 ---
 
-## 🖼️ Visual do Fluxo
+## Visual do Fluxo
 
 <img src="assets/workflow_preview.png" alt="Fluxo completo RAG + Ingestão no n8n" width="900"/>
-
----
-
-## 🚀 Como Usar
-1. Importe o arquivo Knowledge Ingestion Pipeline.json no n8n.  
-2. Configure as credenciais: OpenAI, Supabase e Google Drive.  
-3. Execute o fluxo e envie perguntas ao agente para testar as respostas baseadas na base vetorial.
-
----
-
-## 👩‍💻 Autoria
-Desenvolvido por Daiane Mendes  
